@@ -1,7 +1,7 @@
 {
   "name": "ddns",
   "version": "1.0.0",
-  "description": "DDNS Server",
+  "description": "Imitates a Dyn DNS update server, and use the requested data to update an EntryDNS dynamic host instead.",
   "type": "module",
   "main": "notinuse",
   "scripts": {

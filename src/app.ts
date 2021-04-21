@@ -1,5 +1,22 @@
 #!/usr/bin/env node
 
+/*****************************************
+ * 
+ * Imitates a Dyn DNS server. Some routers, eg D-Link, allow the specification of a server that handles the same protocol as Dyn DNS.
+ * The router calls the specified server when it detects an IP address change.
+ * 
+ * This server handles such requests and update an entrydns.org dyanamic host with the IP address of the requester. Modify the 
+ * update part as necessary to suit your DNS server you are using.
+ * 
+ * GET request:  /update?host=unused with Basic authentication credentials containing the EntryDNS token in the Password field.
+ * 
+ * The requester's IP address is assumed to be the address to be udpated.
+ * 
+ * Server than GET https://entrydns.org/records/modify/<token>?ip=....
+ * 
+ */
+
+
 console.log(Date(), "App loading...");
 import http from "http";
 import https from "https";
@@ -12,14 +29,14 @@ const Server = http.createServer((req, res) => {
   console.log("**** ", new Date(), ` ${req.url} ${req.socket.remoteAddress}`);
 
   let statusCode = 500;
-  const IP = "x-real-ip";
+  const c_IP = "x-real-ip", c_auth = "authorization";
 
   /** Get the IP address */
   let realIP = "";
-  if (Array.isArray(req.headers[IP]))
-    realIP = req.headers[IP]?.[0] ?? "";
+  if (Array.isArray(req.headers[c_IP]))
+    realIP = req.headers[c_IP]?.[0] ?? "";
   else
-    realIP = req.headers[IP] as string;
+    realIP = req.headers[c_IP] as string;
   console.log(`IP is ${realIP}`);
 
   if (!realIP) {
@@ -30,13 +47,13 @@ const Server = http.createServer((req, res) => {
 
     /** Get credentials */
     let credentials = ["", ""];
-    if (!req.headers["authorization"]) {
-      console.error(Date(), `authorization missing ${req.headers[IP]}`);
+    if (!req.headers[c_auth]) {
+      console.error(Date(), `authorization missing`);
       statusCode = 401;
     } else {
       console.log(`authorization:${req.headers.authorization}`)
-      const parts = req.headers["authorization"].split("Basic ");
-      if (parts.length != 2) {
+      const parts = req.headers[c_auth]?.split("Basic ");
+      if (parts?.length != 2) {
         console.error(Date(), ` authorization is not Basic`);
         statusCode = 403;
       } else {
