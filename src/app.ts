@@ -8,10 +8,12 @@
  * This server handles such requests and updates an entrydns.org dyanamic host with the IP address of the requester. Modify the 
  * update part as necessary to suit the dynamic DNS server you are using.
  * 
- * API: GET /update?host=notused with Basic authentication credentials containing the EntryDNS Token in the Password field.
+ * API: GET /update?hostname=optional with Basic authentication credentials containing the EntryDNS Token in the Password field.
  * 
  * The requester's IP address is the address to be usess for updating the domain. This version assumes the server is behind a proxy and the
  * proxy passes the real IP address in the header `x-real-ip`. Modify accordingly (eg to req.socket.remoteAddress) to suit your need.
+ * 
+ * If hostname parameter is present, a ping to it is executed to see if the IP address is same as the caller. If no, no further action is taken.
  * 
  * After data is validated, server then GET https://entrydns.org/records/modify/Token?ip=<IPv4 address> (See https://entrydns.net/help)
  * 
